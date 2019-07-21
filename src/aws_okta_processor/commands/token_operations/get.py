@@ -1,4 +1,4 @@
-"""The authenticate command."""
+"""The token_operations command."""
 
 from __future__ import print_function
 
@@ -18,22 +18,33 @@ NT_EXPORT_STRING = ("$env:AWS_ACCESS_KEY_ID='{}'; "
                     "$env:AWS_SECRET_ACCESS_KEY='{}'; "
                     "$env:AWS_SESSION_TOKEN='{}'")
 
-CONFIG_MAP = {
-            "--environment": "AWS_OKTA_ENVIRONMENT",
-            "--user": "AWS_OKTA_USER",
-            "--pass": "AWS_OKTA_PASS",
-            "--organization": "AWS_OKTA_ORGANIZATION",
-            "--application": "AWS_OKTA_APPLICATION",
-            "--role": "AWS_OKTA_ROLE",
-            "--duration": "AWS_OKTA_DURATION",
-            "--key": "AWS_OKTA_KEY",
-            "--factor": "AWS_OKTA_FACTOR",
-            "--silent": "AWS_OKTA_SILENT"
-        }
 
+class Get(Base):
+    """
+    Usage:
+      get [--environment] [--organization=<okta_organization>]
+          [--user=<user_name>] [--pass=<user_pass>]
+          [--application=<okta_application>]
+          [--role=<role_name>]
+          [--duration=<duration_seconds>]
+          [--key=<key>]
+          [--factor=<factor>]
+          [--silent]
+          
+    Options:
+      -e --environment                                           Dump auth into ENV variables.
+      -u <user_name> --user=<user_name>                          Okta user name.
+      -p <user_pass> --pass=<user_pass>                          Okta user password.
+      -o <okta_organization> --organization=<okta_organization>  Okta organization domain.
+      -a <okta_application> --application=<okta_application>     Okta application url.
+      -r <role_name> --role=<role_name>                          AWS role ARN.
+      -d <duration_seconds> --duration=<duration_seconds>        Duration of role session [default: 3600].
+      -k <key> --key=<key>                                       Key used for generating and accessing cache.
+      -f <factor> --factor=<factor>                              Factor type for MFA.
+      -s --silent                                                Run silently.
+    """  # noqa
 
-class Authenticate(Base):
-    def run(self):
+    def execute(self):
         cache = JSONFileCache()
         saml_fetcher = SAMLFetcher(
             self,
@@ -69,18 +80,3 @@ class Authenticate(Base):
             "User": self.configuration["AWS_OKTA_USER"],
             "Key": self.configuration["AWS_OKTA_KEY"]
         }
-
-    def get_configuration(self, options=None):
-        configuration = {}
-
-        for param, var in CONFIG_MAP.items():
-            if options[param]:
-                configuration[var] = options[param]
-
-            if var not in configuration.keys():
-                if var in os.environ:
-                    configuration[var] = os.environ[var]
-                else:
-                    configuration[var] = None
-
-        return configuration

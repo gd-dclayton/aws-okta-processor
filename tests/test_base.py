@@ -22,15 +22,8 @@ APPLICATIONS_RESPONSE = open(APPLICATIONS_RESPONSE_PATH, 'r').read()
 
 class TestBase(TestCase):
     def setUp(self):
-        self.OPTIONS = {
-            "--environment": False,
-            "--user": "user_name",
-            "--pass": None,
-            "--organization": "org.okta.com",
-            "--application": None,
-            "--role": None,
-            "--key": "key",
-            "--duration": "3600",
-            "--factor": None,
-            "--silent": False
-        }
+        self.OPTIONS = [
+            "--user", "user_name",
+            "--organization", "org.okta.com",
+            "--key", "key"
+        ]
