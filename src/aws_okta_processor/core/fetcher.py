@@ -53,7 +53,7 @@ class SAMLFetcher(CachedCredentialFetcher):
             RoleArn=client_input.aws_role.role_arn,
             PrincipalArn=client_input.aws_role.principal_arn,
             SAMLAssertion=client_input.saml_assertion,
-            DurationSeconds=int(client_input.duration)
+            DurationSeconds=int(self._command.args["AWS_OKTA_DURATION"])
         )
 
         expiration = (response['Credentials']['Expiration']
@@ -74,14 +74,13 @@ class ClientInput:
             silent=command.args["AWS_OKTA_SILENT"]
         )
 
-        if not command.args["AWS_OKTA_APPLICATION"]:
-            applications = okta.get_applications()
+        applications = okta.get_applications()
 
-            command.args["AWS_OKTA_APPLICATION"] = prompt.get_item(
-                items=applications,
-                label="AWS application",
-                key=app
-            )
+        command.args["AWS_OKTA_APPLICATION"] = prompt.get_item(
+            items=applications,
+            label="AWS application",
+            key=command.args["AWS_OKTA_APPLICATION"]
+        )
 
         saml_response = okta.get_saml_response(
             application_url=command.args["AWS_OKTA_APPLICATION"]
@@ -100,6 +99,8 @@ class ClientInput:
             label="AWS Role",
             key=command.args["AWS_OKTA_ROLE"]
         )
+
+        command.args["AWS_OKTA_ROLE"] = self.aws_role.role_arn
 
         print_tty(
             "Role: {}".format(self.aws_role.role_arn),

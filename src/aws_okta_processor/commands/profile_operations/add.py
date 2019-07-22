@@ -3,13 +3,16 @@
 from __future__ import print_function
 
 from .base import Base
+
 from aws_okta_processor.core.fetcher import ClientInput
 
+from aws_okta_processor.core import profile
 
-class Create(Base):
+
+class Add(Base):
     """
     Usage:
-      create --organization=<okta_organization> --user=<user_name> --name=<profile_name>
+      add --organization=<okta_organization> --user=<user_name> --name=<profile_name>
              [--pass=<user_pass>]
              [--duration=<duration_seconds>]
              [--silent]
@@ -24,9 +27,15 @@ class Create(Base):
     """  # noqa
 
     def execute(self):
-        client_input = ClientInput(self)
+        profile_name = self.options["--name"]
 
+        if not profile.exits(name=profile_name):
+            ClientInput(self)
 
+            profile.add(
+                name=profile_name,
+                args=self.args
+            )
 
     def get_pass(self):
         if self.args["AWS_OKTA_PASS"]:

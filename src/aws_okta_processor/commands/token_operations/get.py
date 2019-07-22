@@ -73,10 +73,3 @@ class Get(Base):
     def get_pass(self):
         if self.args["AWS_OKTA_PASS"]:
             return self.args["AWS_OKTA_PASS"]
-
-    def get_key_dict(self):
-        return {
-            "Organization": self.args["AWS_OKTA_ORGANIZATION"],
-            "User": self.args["AWS_OKTA_USER"],
-            "Key": self.args["AWS_OKTA_KEY"]
-        }

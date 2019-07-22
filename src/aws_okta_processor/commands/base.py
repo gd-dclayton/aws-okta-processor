@@ -31,7 +31,7 @@ class Base:
         )
 
 
-def get_args(options=None):
+def get_args(options=None, environment=False):
     args = {}
 
     for param, var in ARG_MAP.items():
@@ -43,7 +43,7 @@ def get_args(options=None):
             args[var] = options[param]
 
         if var not in args.keys():
-            if var in os.environ:
+            if var in os.environ and environment:
                 args[var] = os.environ[var]
             else:
                 args[var] = None
