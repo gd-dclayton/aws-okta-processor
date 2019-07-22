@@ -10,9 +10,8 @@ from aws_okta_processor.core.print_tty import print_tty
 
 
 class SAMLFetcher(CachedCredentialFetcher):
-    def __init__(self, authenticate, cache=None, expiry_window_seconds=600):
-        self._authenticate = authenticate
-        self._configuration = authenticate.configuration
+    def __init__(self, command, cache=None, expiry_window_seconds=600):
+        self._command = command
         self._cache = cache
         self._stored_cache_key = None
         self._expiry_window_seconds = expiry_window_seconds
@@ -24,7 +23,7 @@ class SAMLFetcher(CachedCredentialFetcher):
         return self._stored_cache_key
 
     def _create_cache_key(self):
-        key_dict = self._authenticate.get_key_dict()
+        key_dict = self._command.get_key_dict()
         key_string = json.dumps(key_dict, sort_keys=True)
         key_hash = sha1(key_string.encode()).hexdigest()
         return self._make_file_safe(key_hash)
@@ -48,56 +47,13 @@ class SAMLFetcher(CachedCredentialFetcher):
             aws_session_token=''
         )
 
-        okta = Okta(
-            user_name=self._configuration["AWS_OKTA_USER"],
-            user_pass=self._authenticate.get_pass(),
-            organization=self._configuration["AWS_OKTA_ORGANIZATION"],
-            factor=self._configuration["AWS_OKTA_FACTOR"],
-            silent=self._configuration["AWS_OKTA_SILENT"]
-        )
-
-        self._configuration["AWS_OKTA_USER"] = ''
-        self._configuration["AWS_OKTA_PASS"] = ''
-
-        if self._configuration["AWS_OKTA_APPLICATION"]:
-            application_url = self._configuration["AWS_OKTA_APPLICATION"]
-        else:
-            applications = okta.get_applications()
-
-            application_url = prompt.get_item(
-                items=applications,
-                label="AWS application",
-                key=self._configuration["AWS_OKTA_APPLICATION"]
-            )
-
-        saml_response = okta.get_saml_response(
-            application_url=application_url
-        )
-
-        saml_assertion = saml.get_saml_assertion(
-            saml_response=saml_response
-        )
-
-        aws_roles = saml.get_aws_roles(
-            saml_assertion=saml_assertion
-        )
-
-        aws_role = prompt.get_item(
-            items=aws_roles,
-            label="AWS Role",
-            key=self._configuration["AWS_OKTA_ROLE"]
-        )
-
-        print_tty(
-            "Role: {}".format(aws_role.role_arn),
-            silent=self._configuration["AWS_OKTA_SILENT"]
-        )
+        client_input = ClientInput(self._command)
 
         response = client.assume_role_with_saml(
-            RoleArn=aws_role.role_arn,
-            PrincipalArn=aws_role.principal_arn,
-            SAMLAssertion=saml_assertion,
-            DurationSeconds=int(self._configuration["AWS_OKTA_DURATION"])
+            RoleArn=client_input.aws_role.role_arn,
+            PrincipalArn=client_input.aws_role.principal_arn,
+            SAMLAssertion=client_input.saml_assertion,
+            DurationSeconds=int(client_input.duration)
         )
 
         expiration = (response['Credentials']['Expiration']
@@ -106,3 +62,46 @@ class SAMLFetcher(CachedCredentialFetcher):
         response['Credentials']['Expiration'] = expiration
 
         return response
+
+
+class ClientInput:
+    def __init__(self, command):
+        okta = Okta(
+            user_name=command.args["AWS_OKTA_USER"],
+            user_pass=command.get_pass(),
+            organization=command.args["AWS_OKTA_ORGANIZATION"],
+            factor=command.args["AWS_OKTA_FACTOR"],
+            silent=command.args["AWS_OKTA_SILENT"]
+        )
+
+        if not command.args["AWS_OKTA_APPLICATION"]:
+            applications = okta.get_applications()
+
+            command.args["AWS_OKTA_APPLICATION"] = prompt.get_item(
+                items=applications,
+                label="AWS application",
+                key=app
+            )
+
+        saml_response = okta.get_saml_response(
+            application_url=command.args["AWS_OKTA_APPLICATION"]
+        )
+
+        self.saml_assertion = saml.get_saml_assertion(
+            saml_response=saml_response
+        )
+
+        aws_roles = saml.get_aws_roles(
+            saml_assertion=self.saml_assertion
+        )
+
+        self.aws_role = prompt.get_item(
+            items=aws_roles,
+            label="AWS Role",
+            key=command.args["AWS_OKTA_ROLE"]
+        )
+
+        print_tty(
+            "Role: {}".format(self.aws_role.role_arn),
+            silent=command.args["AWS_OKTA_SILENT"]
+        )

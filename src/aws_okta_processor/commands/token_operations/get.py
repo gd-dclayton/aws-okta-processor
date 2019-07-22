@@ -53,7 +53,7 @@ class Get(Base):
 
         credentials = saml_fetcher.fetch_credentials()
 
-        if self.configuration["AWS_OKTA_ENVIRONMENT"]:
+        if self.args["AWS_OKTA_ENVIRONMENT"]:
             if os.name == 'nt':
                 print(NT_EXPORT_STRING.format(
                     credentials["AccessKeyId"],
@@ -71,12 +71,12 @@ class Get(Base):
             print(json.dumps(credentials))
 
     def get_pass(self):
-        if self.configuration["AWS_OKTA_PASS"]:
-            return self.configuration["AWS_OKTA_PASS"]
+        if self.args["AWS_OKTA_PASS"]:
+            return self.args["AWS_OKTA_PASS"]
 
     def get_key_dict(self):
         return {
-            "Organization": self.configuration["AWS_OKTA_ORGANIZATION"],
-            "User": self.configuration["AWS_OKTA_USER"],
-            "Key": self.configuration["AWS_OKTA_KEY"]
+            "Organization": self.args["AWS_OKTA_ORGANIZATION"],
+            "User": self.args["AWS_OKTA_USER"],
+            "Key": self.args["AWS_OKTA_KEY"]
         }

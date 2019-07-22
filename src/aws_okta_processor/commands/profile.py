@@ -21,4 +21,7 @@ class Profile(Base):
             operation = operation_class(operation_args)
             operation.execute()
         except AttributeError:
-            exit("aws-okta-processor: error: argument operation: Invalid choice")
+            exit((
+                "aws-okta-processor: error: "
+                "argument operation: Invalid choice"
+            ))

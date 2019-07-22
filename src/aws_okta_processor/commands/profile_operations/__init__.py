@@ -1,2 +1,2 @@
-from .create import Create
-from .delete import Delete
+from .create import Create  # noqa
+from .delete import Delete  # noqa

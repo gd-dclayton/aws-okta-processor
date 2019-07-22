@@ -1,2 +1,2 @@
-from .token import Token
-from .profile import Profile
+from .token import Token  # noqa
+from .profile import Profile  # noqa

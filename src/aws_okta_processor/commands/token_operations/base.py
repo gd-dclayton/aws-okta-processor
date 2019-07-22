@@ -1,6 +1,6 @@
 from docopt import docopt
 
-from ..base import get_configuration
+from ..base import get_args
 
 
 class Base:
@@ -10,7 +10,7 @@ class Base:
             argv=command_options
         )
 
-        self.configuration = get_configuration(
+        self.args = get_args(
             options=self.options
         )
 

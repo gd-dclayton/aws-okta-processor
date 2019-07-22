@@ -3,7 +3,7 @@ import os
 from docopt import docopt
 
 
-CONFIG_MAP = {
+ARG_MAP = {
             "--environment": "AWS_OKTA_ENVIRONMENT",
             "--user": "AWS_OKTA_USER",
             "--pass": "AWS_OKTA_PASS",
@@ -18,10 +18,10 @@ CONFIG_MAP = {
 
 
 class Base:
-    def __init__(self, command_options):
+    def __init__(self, command_args):
         self.options = docopt(
             self.__doc__,
-            argv=command_options,
+            argv=command_args,
             options_first=True
         )
 
@@ -31,21 +31,21 @@ class Base:
         )
 
 
-def get_configuration(options=None):
-    configuration = {}
+def get_args(options=None):
+    args = {}
 
-    for param, var in CONFIG_MAP.items():
+    for param, var in ARG_MAP.items():
         if param not in options:
-            configuration[var] = None
+            args[var] = None
             continue
 
         if options[param]:
-            configuration[var] = options[param]
+            args[var] = options[param]
 
-        if var not in configuration.keys():
+        if var not in args.keys():
             if var in os.environ:
-                configuration[var] = os.environ[var]
+                args[var] = os.environ[var]
             else:
-                configuration[var] = None
+                args[var] = None
 
-    return configuration
+    return args

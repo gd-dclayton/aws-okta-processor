@@ -1,2 +1,2 @@
-from .get import Get
-from .delete import Delete
+from .get import Get  # noqa
+from .delete import Delete  # noqa
