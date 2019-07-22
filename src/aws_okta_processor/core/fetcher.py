@@ -80,13 +80,13 @@ class ClientInput:
             silent=silent
         )
 
-        applications = okta.get_applications()
+        if not command.args["AWS_OKTA_APPLICATION"]:
+            applications = okta.get_applications()
 
-        command.args["AWS_OKTA_APPLICATION"] = prompt.get_item(
-            items=applications,
-            label="AWS application",
-            key=command.args["AWS_OKTA_APPLICATION"]
-        )
+            command.args["AWS_OKTA_APPLICATION"] = prompt.get_item(
+                items=applications,
+                label="AWS application"
+            )
 
         saml_response = okta.get_saml_response(
             application_url=command.args["AWS_OKTA_APPLICATION"]
