@@ -6,7 +6,7 @@ from . import token_operations
 class Token(Base):
     """
     Usage:
-      auth <operation> <args> ...
+      token <operation> <args> ...
     """
 
     def execute(self):
