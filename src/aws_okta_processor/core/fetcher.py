@@ -47,7 +47,10 @@ class SAMLFetcher(CachedCredentialFetcher):
             aws_session_token=''
         )
 
-        client_input = ClientInput(self._command)
+        client_input = ClientInput(
+            self._command,
+            silent=True
+        )
 
         response = client.assume_role_with_saml(
             RoleArn=client_input.aws_role.role_arn,
@@ -65,13 +68,16 @@ class SAMLFetcher(CachedCredentialFetcher):
 
 
 class ClientInput:
-    def __init__(self, command):
+    def __init__(self, command, silent=False):
+        if silent:
+            silent = command.args["AWS_OKTA_SILENT"]
+
         okta = Okta(
             user_name=command.args["AWS_OKTA_USER"],
             user_pass=command.get_pass(),
             organization=command.args["AWS_OKTA_ORGANIZATION"],
             factor=command.args["AWS_OKTA_FACTOR"],
-            silent=command.args["AWS_OKTA_SILENT"]
+            silent=silent
         )
 
         applications = okta.get_applications()
@@ -104,5 +110,5 @@ class ClientInput:
 
         print_tty(
             "Role: {}".format(self.aws_role.role_arn),
-            silent=command.args["AWS_OKTA_SILENT"]
+            silent=silent
         )
