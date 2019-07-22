@@ -62,7 +62,7 @@ with tools and libraries that recognize `credential_process`_.
 To setup aws-okta-processor in a profile create an INI formatted file like this::
 
     [default]
-    credential_process=aws-okta-processor authenticate --user <user_name> --organization <organization>.okta.com
+    credential_process=aws-okta-processor token get --user <user_name> --organization <organization>.okta.com
 
 and place it in ``~/.aws/credentials`` (or in
 ``%UserProfile%\.aws/credentials`` on Windows). Then run::
@@ -83,17 +83,17 @@ can be ran to export the following as environment variables::
 
 For Linux or OSX run::
 
-    $ eval $(aws-okta-processor authenticate --environment --user <user_name> --organization <organization>.okta.com)
+    $ eval $(aws-okta-processor token get --environment --user <user_name> --organization <organization>.okta.com)
 
 For Windows run::
 
-    $ Invoke-Expression (aws-okta-processor authenticate --environment --user <user_name> --organization <organization>.okta.com)
+    $ Invoke-Expression (aws-okta-processor token get --environment --user <user_name> --organization <organization>.okta.com)
 
 ----------------------------
 Other Configurable Variables
 ----------------------------
 
-Additional variables can also be passed to aws-okta-processors ``authenticate`` command 
+Additional variables can also be passed to aws-okta-processors ``token get`` command
 as options or environment variables as outlined in the table below.
 
 ============ ============== ===================== ========================================
@@ -128,7 +128,7 @@ If you do not want aws-okta-processor to prompt for any selection input you can 
 
 Or pass additional options to the command::
 
-    $ aws-okta-processor authenticate --user <user_name> --organization <organization>.okta.com --application <application_url> --role <role_arn>
+    $ aws-okta-processor token get --user <user_name> --organization <organization>.okta.com --application <application_url> --role <role_arn>
 
 -------
 Caching
@@ -161,10 +161,10 @@ If you want to store a seperate AWS role session cache for each role assumed usi
 Named profiles for different roles can then be defined in ``~/.aws/credentials`` with content like this::
 
     [role_one]
-    credential_process=aws-okta-processor authenticate --user <user_name> --organization <organization>.okta.com --application <application_url> --role <role_one_arn> --key role_one
+    credential_process=aws-okta-processor token get --user <user_name> --organization <organization>.okta.com --application <application_url> --role <role_one_arn> --key role_one
 
     [role_two]
-    credential_process=aws-okta-processor authenticate --user <user_name> --organization <organization>.okta.com --application <application_url> --role <role_two_arn> --key role_two
+    credential_process=aws-okta-processor token get --user <user_name> --organization <organization>.okta.com --application <application_url> --role <role_two_arn> --key role_two
 
 To clear all AWS session caches run::
 
